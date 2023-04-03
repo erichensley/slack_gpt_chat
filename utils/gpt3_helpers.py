@@ -4,7 +4,7 @@ import logging
 import tiktoken
 from transformers import GPT2TokenizerFast
 
-from utils.conversation_history import load_history
+from utils.conversation_handler import load_history
 from config.api_keys import (openai_api_key, openai_model_engine, pinecone_api_key,
                       pinecone_enviroment, slack_app_token, slack_bot_token)
 
