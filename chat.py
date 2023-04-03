@@ -71,7 +71,6 @@ def feed_message_to_openai(message, say, ack):
         print(user_id)
         text = message["text"]
         vector = gpt3_embedding(message["text"])
-        print("Vector: " + str(vector))
         unique_id = str(uuid4())
         user_metadata = {'username': user, 'time': datetime.datetime.now().isoformat(), 'message': message, 'uuid': unique_id}
         payload.append((unique_id, vector, {"username": user, "time": datetime.datetime.now().isoformat()}))

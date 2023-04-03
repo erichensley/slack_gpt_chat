@@ -62,7 +62,7 @@ def generate_response_from_gpt3(message, username, previous_messages, prompt, ma
         max_tokens=1024,
         top_p=0.3,
         presence_penalty=0.5,
-        frequency=0.5,
+        frequency_penalty=0.5,
         temperature=0.5,
         stop=None
     )

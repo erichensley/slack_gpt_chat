@@ -6,6 +6,7 @@ from utils.file_handler import load_json
 
 def load_conversation(results):
     result = list()
+    print(results)
     for m in results['matches']:
         try:
             info = load_json('nexus/%s.json' % m['id'])
@@ -14,10 +15,16 @@ def load_conversation(results):
             print(f"File 'nexus/{m['id']}.json' not found, skipping.")
             continue
 
-    result = [item for sublist in result for item in sublist]
     ordered = sorted(result, key=lambda d: d['timestamp'], reverse=False)  # sort them all chronologically
 
-    return ordered
+    # Extract messages from the ordered list
+    messages = [{"role": "assistant" if i["username"] == "Crapbot6001" else "user",
+                 "content": f'{i["username"]}: {i["message"]}'} for i in ordered]
+
+    return messages
+
+
+
 
 def load_history(folder_path='nexus/', num_files=20):
     # Get a list of all files in the folder and their modification times
@@ -36,7 +43,6 @@ def load_history(folder_path='nexus/', num_files=20):
             print(f"File '{file_path}' not found, skipping.")
             continue
 
-    result = [item for sublist in result for item in sublist]
     ordered = sorted(result, key=lambda d: d['timestamp'], reverse=False)  # sort them all chronologically
 
     # Extract messages from the ordered list
