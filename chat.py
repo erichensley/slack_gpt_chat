@@ -15,7 +15,7 @@ from config.api_keys import (openai_api_key, openai_model_engine, openai_max_tok
                       pinecone_enviroment, slack_app_token, slack_bot_token)
 
 from utils.file_handler import read_from_file, load_json
-from utils.conversation_history import load_conversation, load_history, save_user_prompt
+from utils.conversation_handler import load_conversation, load_history, save_user_prompt
 from utils.gpt3_helpers import num_tokens_from_string, gpt3_embedding, generate_response_from_gpt3, replace_user_ids_with_names
 
 phrases = read_from_file("config/phrases.txt").strip()
