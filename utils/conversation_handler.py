@@ -38,7 +38,10 @@ def load_history(folder_path='nexus/', num_files=20):
     for file_path, _ in sorted_files[:num_files]:
         try:
             info = load_json(file_path)
-            result.append(info)
+            if isinstance(info, list):
+                result.extend(info)
+            elif isinstance(info, dict):
+                result.append(info)
         except FileNotFoundError:
             print(f"File '{file_path}' not found, skipping.")
             continue
@@ -50,6 +53,7 @@ def load_history(folder_path='nexus/', num_files=20):
                  "content": f'{i["username"]}: {i["message"]}'} for i in ordered]
 
     return messages
+
 
 # Save user prompt to daily log
 def save_user_prompt(metadata):
