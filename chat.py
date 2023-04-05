@@ -11,6 +11,7 @@ from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
+from threading import Thread
 from config.api_keys import (openai_api_key, openai_model_engine, openai_max_tokens, pinecone_api_key,
                       pinecone_enviroment, slack_app_token, slack_bot_token)
 
@@ -116,33 +117,68 @@ try:
             payload.append((response_unique_id, response_vector, {"username": "assistant", "time": datetime.datetime.now().isoformat()}))
             vdb.upsert(payload)
             save_user_prompt(response_metadata)
+            say(response_text)
+            # Generate Images Prompt
+            image_prompt = generate_images_prompt_from_gpt3(message, user, prompt_image)
 
+            print("Image Prompt:" + image_prompt)
+            # Create an image using the image prompt
+            #image_url=""
+            image_url = create_image(image_prompt)
+
+            # If the image creation is successful, send the image to the channel
+            if image_url:
+                say({
+                    "blocks": [
+                        {
+                            "type": "image",
+                            "block_id": "image_block",
+                            "title": {
+                                "type": "plain_text",
+                                "text": "image"
+                            },
+                            "image_url": image_url,
+                            "alt_text": "image"
+                        }
+                    ]
+                })
+        say()
+
+    @app.message(".*")
+    def feed_message_to_openai(message, say, ack):
+        print("Generate Image called")
+        logger = logging.getLogger(__name__)
+        ack()
+        with open(get_messages_file_path(), "a") as log_file:
+            user = replace_user_ids_with_names(message["user"], members)
+            print(message["user"])
+            user_id = str(message["user"])
+            print(user_id)
+            text = message["text"]
             # # Generate Images Prompt
-            # image_prompt = generate_images_prompt_from_gpt3(message, user, related, prompt_image)
+            image_prompt = generate_images_prompt_from_gpt3(message, user, prompt_image)
 
-            # print("Image Prompt:" + image_prompt)
-            # # Create an image using the image prompt
-            # #image_url=""
-            # image_url = create_image(image_prompt)
+            print("Image Prompt:" + image_prompt)
+            # Create an image using the image prompt
+            image_url = create_image(image_prompt)
 
-            # # If the image creation is successful, send the image to the channel
-            # if image_url:
-            #     say({
-            #         "blocks": [
-            #             {
-            #                 "type": "image",
-            #                 "block_id": "image_block",
-            #                 "title": {
-            #                     "type": "plain_text",
-            #                     "text": "image"
-            #                 },
-            #                 "image_url": image_url,
-            #                 "alt_text": "image"
-            #             }
-            #         ]
-            #     })
-        say(response_text)
-
+            # If the image creation is successful, send the image to the channel
+            if image_url:
+                say({
+                    "blocks": [
+                        {
+                            "type": "image",
+                            "block_id": "image_block",
+                            "title": {
+                                "type": "plain_text",
+                                "text": "image"
+                            },
+                            "image_url": image_url,
+                            "alt_text": "image"
+                        }
+                    ]
+                })
+        say()
 
 
     if __name__ == "__main__":

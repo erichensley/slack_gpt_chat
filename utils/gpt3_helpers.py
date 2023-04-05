@@ -75,7 +75,7 @@ def generate_response_from_gpt3(message, username, previous_messages, prompt, ma
 
     return response_text
 
-def generate_images_prompt_from_gpt3(message, username, previous_messages, prompt, max_tokens=3072):
+def generate_images_prompt_from_gpt3(message, username, prompt, max_tokens=3072):
     message_text = message['text']
     content = f"{username}: {message_text}"
     # History is the last X number of messages
@@ -84,7 +84,6 @@ def generate_images_prompt_from_gpt3(message, username, previous_messages, promp
     # Combine previous messages with the new message
     messages = prompt + history + [{"role": "user", "content": content}]
     print("Prompt : " + str(prompt))
-    print("Previous Messages: " + str(previous_messages))
     conversation_history = "\n".join([msg["content"] for msg in messages])
 
     # Calculate tokens
