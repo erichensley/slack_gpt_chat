@@ -119,29 +119,29 @@ try:
             save_user_prompt(response_metadata)
             say(response_text)
             # Generate Images Prompt
-            image_prompt = generate_images_prompt_from_gpt3(message, user, prompt_image)
+            # image_prompt = generate_images_prompt_from_gpt3(message, user, prompt_image)
 
-            print("Image Prompt:" + image_prompt)
-            # Create an image using the image prompt
-            #image_url=""
-            image_url = create_image(image_prompt)
+            # print("Image Prompt:" + image_prompt)
+            # # Create an image using the image prompt
+            # #image_url=""
+            # image_url = create_image(image_prompt)
 
-            # If the image creation is successful, send the image to the channel
-            if image_url:
-                say({
-                    "blocks": [
-                        {
-                            "type": "image",
-                            "block_id": "image_block",
-                            "title": {
-                                "type": "plain_text",
-                                "text": "image"
-                            },
-                            "image_url": image_url,
-                            "alt_text": "image"
-                        }
-                    ]
-                })
+            # # If the image creation is successful, send the image to the channel
+            # if image_url:
+            #     say({
+            #         "blocks": [
+            #             {
+            #                 "type": "image",
+            #                 "block_id": "image_block",
+            #                 "title": {
+            #                     "type": "plain_text",
+            #                     "text": "image"
+            #                 },
+            #                 "image_url": image_url,
+            #                 "alt_text": "image"
+            #             }
+            #         ]
+            #     })
         say()
 
     @app.message(".*")

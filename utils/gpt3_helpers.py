@@ -3,8 +3,9 @@ import re
 import logging
 import tiktoken
 
+import replicate
 from slack_sdk import WebClient
-from config.api_keys import slack_bot_token
+from config.api_keys import slack_bot_token, replicate_api_key
 from transformers import GPT2TokenizerFast
 from utils.conversation_handler import load_history
 from config.api_keys import (openai_api_key, openai_model_engine, pinecone_api_key,
@@ -12,6 +13,7 @@ from config.api_keys import (openai_api_key, openai_model_engine, pinecone_api_k
 
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
 client = WebClient(token=slack_bot_token)
+rep = replicate.Client(api_token=replicate_api_key)
 
 # Return the number of tokens
 def num_tokens_from_string(string: str, encoding_name: str) -> int:
@@ -137,14 +139,14 @@ def replace_user_ids_with_names(message, members):
     return message
 
 # Generate image from DALL-E
-def create_image(prompt):
-    response = openai.Image.create(
-        prompt=prompt,
-        n=1,
-        size="256x256",
-    )
-    image_url = response['data'][0]['url']
-    return image_url
+# def create_image(prompt):
+#     response = openai.Image.create(
+#         prompt=prompt,
+#         n=1,
+#         size="256x256",
+#     )
+#     image_url = response['data'][0]['url']
+#     return image_url
 
 # Trigger the modal
 def trigger_modal(channel_id, image_url, title):  # Update the function parameters
@@ -163,3 +165,12 @@ def trigger_modal(channel_id, image_url, title):  # Update the function paramete
         )
     except Exception as e:
         print(f"Error opening modal: {e}")
+
+# 
+def create_image(prompt):
+    output = rep.run(
+        "cjwbw/kandinsky-2:65a15f6e3c538ee4adf5142411455308926714f7d3f5c940d9f7bc519e0e5c1a",
+        input={"prompt": prompt}
+    )
+    print(output)
+    return output
