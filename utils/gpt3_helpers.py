@@ -2,13 +2,16 @@ import openai
 import re
 import logging
 import tiktoken
-from transformers import GPT2TokenizerFast
 
+from slack_sdk import WebClient
+from config.api_keys import slack_bot_token
+from transformers import GPT2TokenizerFast
 from utils.conversation_handler import load_history
 from config.api_keys import (openai_api_key, openai_model_engine, pinecone_api_key,
                       pinecone_enviroment, slack_app_token, slack_bot_token)
 
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
+client = WebClient(token=slack_bot_token)
 
 # Return the number of tokens
 def num_tokens_from_string(string: str, encoding_name: str) -> int:
@@ -85,3 +88,31 @@ def replace_user_ids_with_names(message, members):
         message = re.sub(user_id, user_name, message)
 
     return message
+
+# Generate image from DALL-E
+def create_image(prompt):
+    response = openai.Image.create(
+        prompt=prompt,
+        n=1,
+        size="512x512",
+    )
+    image_url = response['data'][0]['url']
+    return image_url
+
+# Trigger the modal
+def trigger_modal(channel_id, image_url, title):  # Update the function parameters
+    try:
+        response = client.chat_postMessage(
+            channel=channel_id,  # Use the channel_id here
+            text="Here's your image:",
+            blocks=[
+                {
+                    "type": "image",
+                    "title": {"type": "plain_text", "text": title},
+                    "image_url": image_url,
+                    "alt_text": "Generated image",
+                }
+            ],
+        )
+    except Exception as e:
+        print(f"Error opening modal: {e}")

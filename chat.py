@@ -16,7 +16,7 @@ from config.api_keys import (openai_api_key, openai_model_engine, openai_max_tok
 
 from utils.file_handler import read_from_file, load_json, get_messages_file_path
 from utils.conversation_handler import load_conversation, load_history, save_user_prompt
-from utils.gpt3_helpers import num_tokens_from_string, gpt3_embedding, generate_response_from_gpt3, replace_user_ids_with_names
+from utils.gpt3_helpers import num_tokens_from_string, gpt3_embedding, generate_response_from_gpt3, replace_user_ids_with_names, create_image, trigger_modal
 
 try:
     script_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
@@ -58,6 +58,23 @@ try:
         with open(get_messages_file_path()) as log_file:
             logger.info(str(body) + "\n")
             log_file.write(str(body) + "\n")
+
+    # Make an image
+    @app.command("/image")
+    def make_image(ack, respond, command):
+        ack()
+        user_prompt = command["text"]
+        channel_id = command["channel_id"]  # Get the channel ID from the command
+        image_url = create_image(user_prompt)
+
+        if image_url:
+            # Send an initial message to the user
+            respond(text="Processing your image, please wait...")
+
+            # Trigger the modal after the image is ready
+            trigger_modal(channel_id, image_url, f"{user_prompt} Image")  # Pass the channel_id here
+        else:
+            respond(text="Failed to create an image. Please try again.")
 
     @app.message(".*")
     def feed_message_to_openai(message, say, ack):
