@@ -16,7 +16,7 @@ from config.api_keys import (openai_api_key, openai_model_engine, openai_max_tok
 
 from utils.file_handler import read_from_file, load_json, get_messages_file_path
 from utils.conversation_handler import load_conversation, load_history, save_user_prompt
-from utils.gpt3_helpers import num_tokens_from_string, gpt3_embedding, generate_response_from_gpt3, replace_user_ids_with_names, create_image, trigger_modal
+from utils.gpt3_helpers import num_tokens_from_string, gpt3_embedding, generate_response_from_gpt3, replace_user_ids_with_names, create_image, trigger_modal, generate_images_prompt_from_gpt3
 
 try:
     script_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
@@ -32,6 +32,8 @@ try:
     prompt = [{"role": "system", "content": personality}]
     prompt_context = [{"role": "user", "content": line.strip()} for line in conversation_lines if line.strip()]
     prompt = prompt + prompt_context
+
+    prompt_image = [{"role": "system", "content": read_from_file("config/prompt_image.txt")}]
 
     # Pinecone
     pinecone.init(api_key= pinecone_api_key, environment = pinecone_enviroment)
@@ -114,7 +116,33 @@ try:
             payload.append((response_unique_id, response_vector, {"username": "assistant", "time": datetime.datetime.now().isoformat()}))
             vdb.upsert(payload)
             save_user_prompt(response_metadata)
+
+            # Generate Images Prompt
+            image_prompt = generate_images_prompt_from_gpt3(message, user, related, prompt_image)
+
+            print("Image Prompt:" + image_prompt)
+            # Create an image using the image prompt
+            #image_url=""
+            image_url = create_image(image_prompt)
+
+            # If the image creation is successful, send the image to the channel
+            if image_url:
+                say({
+                    "blocks": [
+                        {
+                            "type": "image",
+                            "block_id": "image_block",
+                            "title": {
+                                "type": "plain_text",
+                                "text": "image"
+                            },
+                            "image_url": image_url,
+                            "alt_text": "image"
+                        }
+                    ]
+                })
         say(response_text)
+
 
 
     if __name__ == "__main__":

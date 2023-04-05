@@ -75,6 +75,54 @@ def generate_response_from_gpt3(message, username, previous_messages, prompt, ma
 
     return response_text
 
+def generate_images_prompt_from_gpt3(message, username, previous_messages, prompt, max_tokens=3072):
+    message_text = message['text']
+    content = f"{username}: {message_text}"
+    # History is the last X number of messages
+    history = load_history(num_files=3)
+
+    # Combine previous messages with the new message
+    messages = prompt + history + [{"role": "user", "content": content}]
+    print("Prompt : " + str(prompt))
+    print("Previous Messages: " + str(previous_messages))
+    conversation_history = "\n".join([msg["content"] for msg in messages])
+
+    # Calculate tokens
+    tokens = len(tokenizer.encode(conversation_history))
+
+    if tokens > max_tokens:
+        tokens_to_remove = tokens - max_tokens
+
+        # Iterate through messages in reverse order, removing tokens until the limit is reached
+        while tokens_to_remove > 0:
+            msg = history.pop()  # Remove the message from history instead of messages
+            msg_tokens = len(tokenizer.encode(msg["content"]))
+            tokens_to_remove -= msg_tokens
+
+        # Rebuild messages and conversation_history after truncating history
+        messages = prompt + history + [{"role": "user", "content": content}]
+        conversation_history = "\n".join([msg["content"] for msg in messages])
+
+        # Recalculate tokens for the new conversation_history
+        tokens = len(tokenizer.encode(conversation_history))
+
+    # Use the OpenAI GPT-3 model to generate a response to the message
+    response = openai.Completion.create(
+        engine=openai_model_engine,
+        prompt=conversation_history,
+        max_tokens=1024,
+        top_p=0.3,
+        presence_penalty=0.5,
+        frequency_penalty=0.5,
+        temperature=0.5,
+        stop=None
+    )
+
+    # Get the generated response text
+    response_text = response.choices[0].text.strip()
+
+    return response_text
+
 # Replace the Slack's user id their display name
 def replace_user_ids_with_names(message, members):
     print("Replace User IDs Called")
@@ -94,7 +142,7 @@ def create_image(prompt):
     response = openai.Image.create(
         prompt=prompt,
         n=1,
-        size="512x512",
+        size="256x256",
     )
     image_url = response['data'][0]['url']
     return image_url
