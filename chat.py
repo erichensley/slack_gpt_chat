@@ -28,7 +28,7 @@ try:
     personality = read_from_file("config/personality.txt").replace("{phrases}", phrases)
 
     # Chatbot Options
-    convo_length = 2  # Number of relevant messages to load
+    convo_length = 10  # Number of relevant messages to load
 
     prompt = [{"role": "system", "content": personality}]
     prompt_context = [{"role": "user", "content": line.strip()} for line in conversation_lines if line.strip()]
