@@ -15,20 +15,20 @@ from threading import Thread
 from config.api_keys import (openai_api_key, openai_model_engine, openai_max_tokens, pinecone_api_key,
                       pinecone_enviroment, slack_app_token, slack_bot_token)
 
-from utils.file_handler import read_from_file, load_json, get_messages_file_path
+from utils.file_handler import read_from_file, load_json, get_messages_file_path, randomize_words
 from utils.conversation_handler import load_conversation, load_history, save_user_prompt
 from utils.gpt3_helpers import num_tokens_from_string, gpt3_embedding, generate_response_from_gpt3, replace_user_ids_with_names, create_image, trigger_modal, generate_images_prompt_from_gpt3
 
 try:
     script_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
     phrases = read_from_file("config/phrases.txt").strip()
-
+    phrases = randomize_words(phrases)
     conversation_lines = read_from_file("config/conversation_content.txt").splitlines()
 
     personality = read_from_file("config/personality.txt").replace("{phrases}", phrases)
 
     # Chatbot Options
-    convo_length = 5  # Number of relevant messages to load
+    convo_length = 2  # Number of relevant messages to load
 
     prompt = [{"role": "system", "content": personality}]
     prompt_context = [{"role": "user", "content": line.strip()} for line in conversation_lines if line.strip()]
@@ -117,7 +117,7 @@ try:
             payload.append((response_unique_id, response_vector, {"username": "assistant", "time": datetime.datetime.now().isoformat()}))
             vdb.upsert(payload)
             save_user_prompt(response_metadata)
-            say(response_text)
+
             # Generate Images Prompt
             # image_prompt = generate_images_prompt_from_gpt3(message, user, prompt_image)
 
@@ -142,7 +142,7 @@ try:
             #             }
             #         ]
             #     })
-        say()
+        say(response_text)
 
     @app.message(".*")
     def feed_message_to_openai(message, say, ack):

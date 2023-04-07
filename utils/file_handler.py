@@ -1,5 +1,6 @@
 import json
 import os
+import random
 
 def read_from_file(file_path):
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -22,3 +23,21 @@ def get_nexus_folder_path():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     abs_nexus_folder = os.path.join(script_dir, "..", "nexus")
     return abs_nexus_folder
+
+def get_config_file_path(filename):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    abs_nexus_folder = os.path.join(script_dir, "..", "config")
+    file_path = os.path.join(abs_nexus_folder, filename)
+    return file_path
+
+def randomize_words(text):
+    # Split the text into words
+    words = text.split()
+
+    # Shuffle the words
+    random.shuffle(words)
+
+    # Join the words back together into a single string
+    randomized_text = ' '.join(words)
+
+    return randomized_text
