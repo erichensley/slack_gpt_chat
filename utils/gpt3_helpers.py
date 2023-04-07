@@ -103,7 +103,6 @@ def generate_response_from_gpt3(message, username, previous_messages, prompt, ma
         engine=openai_model_engine,
         prompt=conversation_history,
         max_tokens=tokens_left,
-        top_p=0.3,
         presence_penalty=0.6,
         frequency_penalty=0.0,
         temperature=0.7,
