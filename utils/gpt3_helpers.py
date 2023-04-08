@@ -5,7 +5,7 @@ import tiktoken
 import requests
 import os
 import shutil
-from uuid
+import uuid
 
 import replicate
 from slack_sdk import WebClient
@@ -212,6 +212,7 @@ def trigger_modal(channel_id, image_url, title):  # Update the function paramete
 
 # 
 def create_image(prompt):
+    print("Image Prompt: " + prompt)
     output = rep.run(
         "cjwbw/kandinsky-2:65a15f6e3c538ee4adf5142411455308926714f7d3f5c940d9f7bc519e0e5c1a",
         input={"prompt": prompt}
@@ -220,12 +221,13 @@ def create_image(prompt):
     return url
 
 def download_and_save_image(image_url):
+    print("Downloading image...")
     response = requests.get(image_url, stream=True)
     response.raise_for_status()
 
     file_extension = os.path.splitext(image_url)[-1]
     new_file_name = f"{uuid.uuid4()}{file_extension}"
-    save_path = os.path.join(get_images_path, new_file_name)
+    save_path = os.path.join(get_images_path(), new_file_name)
 
     with open(save_path, "wb") as file:
         shutil.copyfileobj(response.raw, file)

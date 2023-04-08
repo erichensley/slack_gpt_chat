@@ -31,14 +31,15 @@ def get_config_file_path(filename):
     file_path = os.path.join(abs_nexus_folder, filename)
     return file_path
 
-def get_images_path(filename):
+def get_images_path():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    abs_nexus_folder = os.path.join(script_dir, "..", "images")
-    file_path = os.path.join(abs_nexus_folder, filename)
-    return file_path
+    images_folder = os.path.join(script_dir, "..", "images")
+    return images_folder
 
 def generate_image_url(file_name):
-    return image_host + file_name
+    url = image_host + file_name
+    print(url)
+    return url
 
 def randomize_words(text):
     # Split the text into words
