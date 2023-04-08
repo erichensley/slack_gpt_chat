@@ -2,13 +2,17 @@ import openai
 import re
 import logging
 import tiktoken
+import requests
+import os
+import shutil
+import uuid
 
 import replicate
 from slack_sdk import WebClient
 from config.api_keys import slack_bot_token, replicate_api_key
 from transformers import GPT2TokenizerFast
 from utils.conversation_handler import load_history
-from utils.file_handler import get_config_file_path
+from utils.file_handler import get_config_file_path, get_images_path, generate_image_url
 from config.api_keys import (openai_api_key, openai_model_engine, pinecone_api_key,
                       pinecone_enviroment, slack_app_token, slack_bot_token)
 
@@ -207,9 +211,24 @@ def trigger_modal(channel_id, image_url, title):  # Update the function paramete
 
 # 
 def create_image(prompt):
+    print("Image Prompt: " + prompt)
     output = rep.run(
         "cjwbw/kandinsky-2:65a15f6e3c538ee4adf5142411455308926714f7d3f5c940d9f7bc519e0e5c1a",
         input={"prompt": prompt}
     )
-    print(output)
-    return output
+    url = generate_image_url(download_and_save_image(output))
+    return url
+
+def download_and_save_image(image_url):
+    print("Downloading image...")
+    response = requests.get(image_url, stream=True)
+    response.raise_for_status()
+
+    file_extension = os.path.splitext(image_url)[-1]
+    new_file_name = f"{uuid.uuid4()}{file_extension}"
+    save_path = os.path.join(get_images_path(), new_file_name)
+
+    with open(save_path, "wb") as file:
+        shutil.copyfileobj(response.raw, file)
+
+    return new_file_name

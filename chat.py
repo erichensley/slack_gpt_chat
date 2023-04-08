@@ -58,7 +58,7 @@ try:
     def handle_app_mention_events(body, logger):
     # Create a logger object
         logger = logging.getLogger(__name__)
-        with open(get_messages_file_path()) as log_file:
+        with open(get_messages_file_path(), "a") as log_file:
             logger.info(str(body) + "\n")
             log_file.write(str(body) + "\n")
 
