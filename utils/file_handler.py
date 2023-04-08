@@ -1,6 +1,7 @@
 import json
 import os
 import random
+from config.api_keys import image_host
 
 def read_from_file(file_path):
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -29,6 +30,15 @@ def get_config_file_path(filename):
     abs_nexus_folder = os.path.join(script_dir, "..", "config")
     file_path = os.path.join(abs_nexus_folder, filename)
     return file_path
+
+def get_images_path(filename):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    abs_nexus_folder = os.path.join(script_dir, "..", "images")
+    file_path = os.path.join(abs_nexus_folder, filename)
+    return file_path
+
+def generate_image_url(file_name):
+    return image_host + file_name
 
 def randomize_words(text):
     # Split the text into words
