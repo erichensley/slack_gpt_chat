@@ -181,6 +181,14 @@ def replace_user_ids_with_names(message, members):
 
     return message
 
+def get_username(user_id, members):
+    for member in members:
+        if member["id"] == user_id:
+            user_name = member["profile"]["display_name"] if member["profile"]["display_name"] else member["name"]
+            return user_name
+    return None
+
+
 # Generate image from DALL-E
 # def create_image(prompt):
 #     response = openai.Image.create(
