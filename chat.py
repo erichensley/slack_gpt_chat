@@ -82,7 +82,7 @@ try:
         else:
             respond(text="Failed to create an image. Please try again.")
 
-    @app.message(".*")
+    @app.message("U04DG1YC0VC")
     def feed_message_to_openai(message, say, ack):
         print("Feed message to OpenAI called")
         logger = logging.getLogger(__name__)
@@ -146,42 +146,6 @@ try:
             #         ]
             #     })
         say(response_text)
-
-    @app.message(".*")
-    def feed_message_to_openai(message, say, ack):
-        print("Generate Image called")
-        logger = logging.getLogger(__name__)
-        ack()
-        with open(get_messages_file_path(), "a") as log_file:
-            user = replace_user_ids_with_names(message["user"], members)
-            print(message["user"])
-            user_id = str(message["user"])
-            print(user_id)
-            text = message["text"]
-            # # Generate Images Prompt
-            image_prompt = generate_images_prompt_from_gpt3(message, user, prompt_image)
-
-            print("Image Prompt:" + image_prompt)
-            # Create an image using the image prompt
-            image_url = create_image(image_prompt)
-
-            # If the image creation is successful, send the image to the channel
-            if image_url:
-                say({
-                    "blocks": [
-                        {
-                            "type": "image",
-                            "block_id": "image_block",
-                            "title": {
-                                "type": "plain_text",
-                                "text": "image"
-                            },
-                            "image_url": image_url,
-                            "alt_text": "image"
-                        }
-                    ]
-                })
-        say()
 
 
     if __name__ == "__main__":
